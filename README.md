@@ -20,12 +20,52 @@
 
 ### 安卓端 → [Release `keepassdx-4.4.5`](../../releases/tag/keepassdx-4.4.5)
 
-| 文件 | 用途 |
-|---|---|
-| `KeePassDX-4.4.5-libre.apk` | **推荐**。完全自由软件构建（F-Droid 同款） |
-| `KeePassDX-4.4.5-free.apk` | Google Play 同款构建 |
+上游用**同一份代码**编译出两个版本（Gradle product flavor），对应两个不同的分发渠道。**装哪个要在安装前决定**：
 
-安装：传到手机 → 文件管理器点开 → 允许「安装未知来源应用」。
+| 文件 | 对应官方渠道 | 包名 (applicationId) | 建议 |
+|---|---|---|---|
+| `KeePassDX-4.4.5-libre.apk` | **F-Droid** | `com.kunzisoft.keepass.libre` | ✅ **用这个** |
+| `KeePassDX-4.4.5-free.apk` | **Google Play** | `com.kunzisoft.keepass.free` | 想和 Play 商店保持一致时用 |
+
+#### 两者到底差在哪
+
+以下差异全部核实自 4.4.5 源码的 `app/build.gradle`（源码就在本 release 的 bundle / tarball 里，可自行复核）：
+
+| | `libre` — F-Droid | `free` — Google Play |
+|---|---|---|
+| 构建标记 `CLOSED_STORE` | `false` | `true` |
+| Google 云备份 API key | 无 | **有**，`googleAndroidBackupAPIKey` 写进 manifest |
+| Google passkey 特权应用清单 | 无 | 有，`passkeys_privileged_apps_google.json` |
+| 内购 / 捐赠提示逻辑 | 走开放渠道 | 走应用商店 |
+| 可选主题 | **多一个 Blue 主题** | 无 Blue 主题 |
+| 应用图标 | 各自一套独立图标 | 各自一套独立图标 |
+| flavor 专属第三方依赖 | 无 | 无 |
+
+**核心功能两者完全一致，没有任何阉割**：打开 kdbx、KDBX4 + Argon2、系统级自动填充、指纹/面容解锁、passkey，都一样。
+
+#### 为什么推荐 libre
+
+它不含任何 Google 服务对接点——没有 Google 云备份密钥，没有 Google 的特权应用清单。密码管理器少一个对外接口就少一份风险面。功能上你不会损失任何东西，反而多一个主题。
+
+#### ⚠️ 两个包名不同，Android 视作两个独立应用
+
+- **可以同时安装**，互不干扰
+- 但**设置和「最近打开的库」列表不共享**
+- **不能从一个「升级」成另一个**，要换必须先卸载再重装
+- 你的 `.kdbx` 文件是独立的普通文件，换版本**不会丢密码**，重新指向文件即可
+
+#### ⚠️ 关于签名与后续更新
+
+我核对过归档里这两个 APK **由同一把 Kunzisoft 密钥签名**（指纹见下方「校验方法」）。
+
+但 Google Play 分发时可能启用 Play App Signing 重新签名——**这一点我没有验证**。所以：
+
+- 装归档里的 `free.apk`，之后**未必**能从 Play 商店直接更新（可能报签名不匹配）。想走 Play 更新就直接从 Play 装
+- 装归档里的 `libre.apk`，之后从 F-Droid 更新是正常的（F-Droid 用作者原始签名）
+
+#### 安装方法
+
+传到手机 → 用文件管理器点开 APK → 允许「安装未知来源应用」。
 
 ### 源码（上游真的消失时才需要）
 
