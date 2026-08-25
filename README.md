@@ -67,11 +67,11 @@ sha256sum -c KeePassDX-4.4.5-SHA256SUMS.txt
 ```
 
 > **坑提醒**：KeePassXC 官方的 `*.DIGEST` 文件是 **CRLF 换行**，在 Linux / macOS / Git Bash 下直接
-> `sha256sum -c xxx.DIGEST` 会报 `No such file or directory`——因为 `` 被当成了文件名的一部分。
+> `sha256sum -c xxx.DIGEST` 会报 `No such file or directory`——因为 `\r` 被当成了文件名的一部分。
 > 要么用上面那份我已经转成 LF 的 `KeePassXC-2.7.12-SHA256SUMS.txt`，要么临时去掉 CR：
 >
 > ```bash
-> tr -d '' < KeePassXC-2.7.12-Win64.msi.DIGEST | sha256sum -c -
+> tr -d '\r' < KeePassXC-2.7.12-Win64.msi.DIGEST | sha256sum -c -
 > ```
 
 APK 另有更可靠的身份凭证——签名证书。两个 APK 均由同一把密钥签名：
